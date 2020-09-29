@@ -11,6 +11,7 @@
     <properties>
         <scala.version>2.11</scala.version>
         <flink.version>1.10.0</flink.version>
+        <mysql.version>8.0.17</mysql.version>
     </properties>
 
     <dependencies>
@@ -49,7 +50,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.47</version>
+            <version>${mysql.version}</version>
         </dependency>
 
         <dependency>
@@ -69,15 +70,5 @@
             <artifactId>flink-connector-elasticsearch7_${scala.version}</artifactId>
             <version>${flink.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.flink</groupId>-->
-<!--            <artifactId>flink-connector-elasticsearch-base_${scala.version}</artifactId>-->
-<!--            <version>${flink.version}</version>-->
-<!--        </dependency>-->
-
-
-
-
-
     </dependencies>
 </project>

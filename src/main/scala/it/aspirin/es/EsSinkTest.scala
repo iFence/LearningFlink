@@ -12,13 +12,18 @@ import org.apache.http.HttpHost
 import org.elasticsearch.client.Requests
 
 object EsSinkTest {
+
+  case class Student(name: String, id: Long, score: Double)
+
   def main(args: Array[String]): Unit = {
     val env = FlinkUtils.getStreamEnv
+    env.setParallelism(1)
     val sourceDataStream = addTextSource(env)
-    val httpHosts = new util.ArrayList[HttpHost]()
-    httpHosts.add(new HttpHost("localhost",9200))
-    addEsSink(httpHosts, sourceDataStream)
-    addConsoleSink(sourceDataStream)
+    val transedStream = addTrans(sourceDataStream)
+//    val httpHosts = new util.ArrayList[HttpHost]()
+//    httpHosts.add(new HttpHost("localhost", 9200))
+//    addEsSink(httpHosts, sourceDataStream)
+    addConsoleSink(transedStream)
     FlinkUtils.start(env)
   }
 
@@ -32,6 +37,19 @@ object EsSinkTest {
     env.readTextFile("/Users/yulei/IdeaProjects/personal/LearningFlink/src/main/resources/emp.txt")
   }
 
+  def addTrans(sourceDataStream: DataStream[String]): DataStream[Student] = {
+    val stuStream = sourceDataStream.map(stu => {
+        val arr = stu.split(',')
+        Student(arr(0), arr(1).toLong, arr(2).toDouble)
+      })
+    //求最小值
+    val res = stuStream.keyBy("name").minBy("score")
+    //输出最大成绩和最小
+    stuStream.keyBy("name").reduce((currData, newData) => {
+      Student(currData.name, currData.id, currData.score.min(newData.score))
+    })
+  }
+
   /**
    * sink到elasticsearch
    *
@@ -42,7 +60,7 @@ object EsSinkTest {
     val myEsSinkFunc = new ElasticsearchSinkFunction[String] {
       override def process(data: String, runtimeContext: RuntimeContext, requestIndexer: RequestIndexer): Unit = {
         //封装数据
-        val dataSource = new util.HashMap[String,String]()
+        val dataSource = new util.HashMap[String, String]()
         dataSource.put("id", data)
 
         //创建index request,发送http请求
@@ -58,10 +76,9 @@ object EsSinkTest {
     dataStream.addSink(new ElasticsearchSink.Builder[String](httpHosts, myEsSinkFunc).build())
   }
 
-  def addConsoleSink(dataStream: DataStream[String]):Unit = {
+  def addConsoleSink(dataStream: DataStream[Student]): Unit = {
     dataStream.print()
   }
-
 
 
 }

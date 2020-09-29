@@ -1,3 +1,15 @@
 Zoie,1,8888.8
-Bella,2,9999.9
-Aspirin,3,18888.8
+Bella,2,999.9
+Aspirin,3,18668.8
+Zoie,4,777
+Bella,5,9999.9
+Aspirin,6,27788.8
+Zoie,7,12345.8
+Bella,8,99.9
+Aspirin,9,38888.8
+Zoie,10,44.8
+Bella,11,999990
+Aspirin,12,28888.8
+Zoie,13,234567.8
+Bella,14,99499.9
+Aspirin,15,18888.88

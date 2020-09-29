@@ -9,6 +9,8 @@ import org.apache.flink.streaming.api.functions.sink.{RichSinkFunction, SinkFunc
 import org.apache.flink.streaming.api.functions.source.{RichParallelSourceFunction, SourceFunction}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.windowing.assigners.{SlidingProcessingTimeWindows, TumblingEventTimeWindows}
+import org.apache.flink.streaming.api.windowing.time.Time
 
 import scala.util.Random
 
@@ -19,8 +21,8 @@ object CustomizeDemo {
   def main(args: Array[String]): Unit = {
     val env = FlinkUtils.getStreamEnv
     val value = addCustomizeSource(env)
-    addSink(value)
-    addJdbcSink(value)
+    addConsoleSink(value)
+    //    addJdbcSink(value)
     FlinkUtils.start(env)
   }
 
@@ -28,12 +30,27 @@ object CustomizeDemo {
     env.addSource(new MySource())
   }
 
-  def addSink(dataStream: DataStream[SensorReading]): Unit ={
+  /**
+   * window转换操作
+   */
+  def windowTrans(sourceStream: DataStream[SensorReading]) = {
+    sourceStream.keyBy("id")
+      //      .window(TumblingEventTimeWindows.of(Time.seconds(15))) //滚动事件时间窗口
+      //      .window(SlidingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(5))) //滑动处理时间窗口
+      //      .timeWindow(Time.seconds(15)) //滚动窗口的简写形式，具体是滑动还是事件时间还是处理时间程序会自己判断
+//      .timeWindow(Time.seconds(15), Time.seconds(10)) //滑动窗口的简写，具体是滑动还是事件时间还是处理时间程序会自己判断
+//      .countWindow(10L) //滚动窗口
+      .countWindow(10L, 5L)//滑动窗口
+  }
+
+  def addConsoleSink(dataStream: DataStream[SensorReading]): Unit = {
     dataStream.print()
   }
-  def addJdbcSink(dataStream: DataStream[SensorReading]): Unit ={
+
+  def addJdbcSink(dataStream: DataStream[SensorReading]): Unit = {
     dataStream.addSink(new MySQLSink)
   }
+
 }
 
 case class SensorReading(id: String, time: Long, tem: Double)
@@ -72,9 +89,10 @@ class MySQLSink extends RichSinkFunction[SensorReading] {
   var connection: Connection = _
   var insertStatement: PreparedStatement = _
   var updateStatement: PreparedStatement = _
+
   override def open(configuration: Configuration): Unit = {
 
-    connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test","root","root")
+    connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root")
     insertStatement = connection.prepareStatement("insert into temp (sensor, temp) values (?, ?)")
     updateStatement = connection.prepareStatement("update temp set temp = ? where sensor = ?")
 
@@ -87,7 +105,7 @@ class MySQLSink extends RichSinkFunction[SensorReading] {
     updateStatement.execute()
 
     //如果没有执行更新语句，执行插入
-    if(updateStatement.getUpdateCount == 0){
+    if (updateStatement.getUpdateCount == 0) {
       insertStatement.setString(1, value.id)
       insertStatement.setDouble(2, value.tem)
       insertStatement.execute()
