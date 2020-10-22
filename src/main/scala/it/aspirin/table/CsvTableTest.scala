@@ -5,7 +5,10 @@ import org.apache.flink.table.api.DataTypes
 import org.apache.flink.table.api.scala._
 import org.apache.flink.table.descriptors.{Csv, FileSystem, Schema}
 
-object TableDemo2 {
+/**
+ * 从表环境注册一张外部系统的表进FLink中
+ */
+object CsvTableTest {
   val sourceFile = "/Users/yulei/IdeaProjects/personal/LearningFlink/src/main/resources/emp.txt"
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -28,7 +31,7 @@ object TableDemo2 {
     tabRes.toAppendStream[(String,Long,Double)].print()
 
     //通过SQL查询语句得到结果表
-    val sqlRes = tableEnvironment.sqlQuery("select name from inputTable")
+//    val sqlRes = tableEnvironment.sqlQuery("select name from inputTable")
 //    tabRes.insertInto("outputTable")
     env.execute("table & sql api demo")
 

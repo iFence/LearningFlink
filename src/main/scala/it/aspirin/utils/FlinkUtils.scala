@@ -19,4 +19,8 @@ object FlinkUtils {
     env.execute("DataStream demo")
   }
 
+  def start(env: StreamExecutionEnvironment, name:String): Unit = {
+    env.execute(name)
+  }
+
 }

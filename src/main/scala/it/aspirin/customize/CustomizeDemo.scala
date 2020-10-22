@@ -21,7 +21,8 @@ object CustomizeDemo {
   def main(args: Array[String]): Unit = {
     val env = FlinkUtils.getStreamEnv
     val value = addCustomizeSource(env)
-    addConsoleSink(value)
+    windowTrans(value)
+//    addConsoleSink(value)
     //    addJdbcSink(value)
     FlinkUtils.start(env)
   }
@@ -38,9 +39,11 @@ object CustomizeDemo {
       //      .window(TumblingEventTimeWindows.of(Time.seconds(15))) //滚动事件时间窗口
       //      .window(SlidingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(5))) //滑动处理时间窗口
       //      .timeWindow(Time.seconds(15)) //滚动窗口的简写形式，具体是滑动还是事件时间还是处理时间程序会自己判断
-//      .timeWindow(Time.seconds(15), Time.seconds(10)) //滑动窗口的简写，具体是滑动还是事件时间还是处理时间程序会自己判断
+      .timeWindow(Time.seconds(15), Time.seconds(10)) //滑动窗口的简写，具体是滑动还是事件时间还是处理时间程序会自己判断
 //      .countWindow(10L) //滚动窗口
-      .countWindow(10L, 5L)//滑动窗口
+//      .countWindow(10L, 5L)//滑动窗口
+      .reduce((r1, r2) => SensorReading(r1.id, r2.time, r1.tem.min(r2.tem)))
+      .print()
   }
 
   def addConsoleSink(dataStream: DataStream[SensorReading]): Unit = {
