@@ -46,6 +46,20 @@
             <artifactId>flink-connector-kafka_${scala.version}</artifactId>
             <version>${flink.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-jdbc_${scala.version}</artifactId>
+            <version>1.10.1</version>a
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-elasticsearch-base_${scala.version}</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+
         <!--mysql-->
         <dependency>
             <groupId>mysql</groupId>

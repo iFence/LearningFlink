@@ -12,6 +12,7 @@ case class Emp(name: String, id: Long, salary: Double)
 object TableDemo1 {
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
+    env.enableCheckpointing(5000L)
     val inputStream = env.socketTextStream("localhost", 9999)
 
     //将流转成样例类
