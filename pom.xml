@@ -50,14 +50,15 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-jdbc_${scala.version}</artifactId>
-            <version>1.10.1</version>a
+            <version>1.10.1</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-elasticsearch-base_${scala.version}</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.flink</groupId>-->
+<!--            <artifactId>flink-sql-connector-elasticsearch7_${scala.version}</artifactId>-->
+<!--            <version>${flink.version}</version>-->
+<!--        </dependency>-->
+
 
 
         <!--mysql-->
@@ -79,6 +80,7 @@
 <!--            <version>1.0</version>-->
 <!--        </dependency>-->
 
+        <!--flink sql和flink datastream都用这个包，上面还有一个专门的flink-sql-connector包，试了一下会报错-->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-elasticsearch7_${scala.version}</artifactId>
