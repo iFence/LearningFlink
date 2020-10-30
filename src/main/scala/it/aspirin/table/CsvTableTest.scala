@@ -28,8 +28,10 @@ object CsvTableTest {
 
     //通过table查询算子，得到一张结果表
     val tabRes = tableEnvironment.from("inputTable").select("name, id, salary").filter("salary > 7000")
-    tabRes.toAppendStream[(String,Long,Double)].print()
-
+//    tabRes.toAppendStream[(String,Long,Double)].print()
+    //执行计划
+    val str = tableEnvironment.explain(tabRes)
+    println(str)
     //通过SQL查询语句得到结果表
 //    val sqlRes = tableEnvironment.sqlQuery("select name from inputTable")
 //    tabRes.insertInto("outputTable")
