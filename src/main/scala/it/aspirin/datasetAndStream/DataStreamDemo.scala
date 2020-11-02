@@ -8,8 +8,8 @@ object DataStreamDemo {
   def main(args: Array[String]): Unit = {
     val env = FlinkUtils.getStreamEnv
     val params = ParameterTool.fromArgs(args)
-    val hostname = params.get("host")
-    val port = params.getInt("port")
+//    val hostname = params.get("host")
+//    val port = params.getInt("port")
 //    val source = addSocketSource(env, hostname, port)
     val source = addTextSource(env)
     val transformed = transform(source)
