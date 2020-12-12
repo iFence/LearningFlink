@@ -14,16 +14,38 @@ import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKaf
 import org.apache.flink.streaming.api.scala._
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
+import com.alibaba.fastjson.{JSON, JSONObject}
+import org.apache.flink.streaming.api.functions.ProcessFunction
+import org.apache.flink.util.Collector
 
-/**
- * 测试读取kafka中的数据
- */
 object KafkaDemo {
   def main(args: Array[String]): Unit = {
+
     val env = FlinkUtils.getStreamEnv
-    val value = addKafkaSource(env)
-    addConsoleSink(value)
-    addKafkaSink(value)
+    val kafkaDS = addKafkaSource(env, "hello10211")
+    val splitedDS = kafkaDS.map(JSON.parseObject(_))
+      .process(new ProcessFunction[JSONObject, JSONObject] {
+        override def processElement(obj: JSONObject, context: ProcessFunction[JSONObject, JSONObject]#Context, collector: Collector[JSONObject]): Unit = {
+          if(obj.containsKey("process") && obj.getJSONObject("process").containsKey("name")) {
+            obj.getJSONObject("process").getString("name") match {
+              case "idea" => context.output(new OutputTag[JSONObject]("idea"), obj)
+              case "Google Chrome H" => context.output(new OutputTag[JSONObject]("Google Chrome H"), obj)
+              case "Mac OS X" => context.output(new OutputTag[JSONObject]("Mac OS X"), obj)
+              case "metricbeat" => context.output(new OutputTag[JSONObject]("metricbeat"), obj)
+              case "JavaApplication" => context.output(new OutputTag[JSONObject]("JavaApplication"), obj)
+              case _ => collector.collect(obj)
+            }
+          } else {
+            context.output(new OutputTag[JSON]("unknown"),obj)
+          }
+        }
+      })
+//    splitedDS.print()
+    splitedDS.getSideOutput(new OutputTag[JSONObject]("unknown"))
+      .print()
+
+    //    addConsoleSink(kafkaDS)
+    //    addKafkaSink(value)
     FlinkUtils.start(env)
   }
 
@@ -32,15 +54,15 @@ object KafkaDemo {
    *
    * @param env 流处理环境
    */
-  def addKafkaSource(env: StreamExecutionEnvironment) = {
+  def addKafkaSource(env: StreamExecutionEnvironment, groupId: String = "test") = {
     val props = new Properties()
     props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
-    props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "flink-demo")
+    props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId)
     props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
     props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
-    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
+    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
 
-    env.addSource(new FlinkKafkaConsumer[String]("test-old", new SimpleStringSchema(), props))
+    env.addSource(new FlinkKafkaConsumer[String]("metric-topic", new SimpleStringSchema(), props))
   }
 
   def addConsoleSink(dataStream: DataStream[String]): Unit = {
@@ -48,7 +70,7 @@ object KafkaDemo {
   }
 
   def addKafkaSink(dataStream: DataStream[String]) = {
-    dataStream.addSink(new FlinkKafkaProducer[String]("","",new SimpleStringSchema()))
+    dataStream.addSink(new FlinkKafkaProducer[String]("", "", new SimpleStringSchema()))
   }
 
   def addESSink(dataStream: DataStream[String]) = {

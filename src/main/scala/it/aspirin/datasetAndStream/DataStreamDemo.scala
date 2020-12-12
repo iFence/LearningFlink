@@ -2,19 +2,23 @@ package it.aspirin.datasetAndStream
 
 import it.aspirin.utils.FlinkUtils
 import org.apache.flink.api.java.utils.ParameterTool
+import org.apache.flink.runtime.state.StateBackend
+import org.apache.flink.runtime.state.filesystem.FsStateBackend
 import org.apache.flink.streaming.api.scala._
 
 object DataStreamDemo {
   def main(args: Array[String]): Unit = {
     val env = FlinkUtils.getStreamEnv
+    env.setStateBackend(new FsStateBackend("file:///Users/yulei/Downloads/flink-statebackend"))
     val params = ParameterTool.fromArgs(args)
-//    val hostname = params.get("host")
-//    val port = params.getInt("port")
-//    val source = addSocketSource(env, hostname, port)
-    val source = addTextSource(env)
+    val hostname = params.get("host")
+    val port = params.getInt("port")
+
+    val source = addSocketSource(env, hostname, port)
+//    val source = addTextSource(env)
     val transformed = transform(source)
     addConsoleSink(transformed)
-    FlinkUtils.start(env)
+    FlinkUtils.start(env,"state-backend test")
   }
 
   /**

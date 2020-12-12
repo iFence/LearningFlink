@@ -61,7 +61,7 @@ class MyRichMapper extends RichMapFunction[SensorReading, String] {
   lazy val reduceState: ReducingState[SensorReading] = getRuntimeContext.getReducingState(new ReducingStateDescriptor[SensorReading]("", new MyReducer, classOf[SensorReading]))
 
   override def open(parameters: Configuration): Unit = {
-    // 下面这句话需要定义在open声明周期里面,或者把这句话定义成lazy的
+    // 下面这句话需要定义在open生命周期里面,或者把这句话定义成lazy的
     valueState = getRuntimeContext.getState(new ValueStateDescriptor[Double]("valueState1", classOf[Double]))
   }
 
