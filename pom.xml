@@ -10,6 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>flink-java</module>
+        <module>flink-table-java</module>
     </modules>
 
     <properties>
