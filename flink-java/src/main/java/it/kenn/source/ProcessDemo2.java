@@ -14,11 +14,17 @@ import scala.Tuple3;
 
 import java.time.Duration;
 
+/**
+ * process function学习
+ * 2020-12-19
+ */
 public class ProcessDemo2 {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        //设置事件时间
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         SingleOutputStreamOperator<Tuple3<String, Long, Double>> source = env.addSource(new ForJoinSource1())
+                //指定watermark生成策略
                 .assignTimestampsAndWatermarks(WatermarkStrategy
                         .<Tuple3<String, Long, Double>>forBoundedOutOfOrderness(Duration.ofMillis(100))
                         .withTimestampAssigner((e, ts) -> e._2())
@@ -39,7 +45,7 @@ class CountWithTimestamp {
 
 /**
  * 下面方法完成的功能是：
- * 如果某个键对应的值6s没有被修改就会输出这个键对应的计数
+ * 如果某个键对应的值6s没有被修改就会输出这个键对应的计数。这个功能其实可以使用session window来实现
  */
 class CountWithTimeoutFunction extends KeyedProcessFunction<String, Tuple3<String, Long, Double>, Tuple2<String, Long>> {
     private ValueState<CountWithTimestamp> state;
@@ -76,6 +82,7 @@ class CountWithTimeoutFunction extends KeyedProcessFunction<String, Tuple3<Strin
 
     /**
      * 回调函数
+     *
      * @param timestamp
      * @param ctx
      * @param out
