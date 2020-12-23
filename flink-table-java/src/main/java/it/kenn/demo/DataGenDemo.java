@@ -7,11 +7,10 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 /**
  * 测试datagen数据源和print sink的使用
  * datagen可以创建无界表也可以创建有界表
- *
+ * <p>
  * print sink方式支持的数据类型很有限，DECIMAL类型都不支持，复合结构更不支持。
  */
 public class DataGenDemo {
-
     static String gen = "CREATE TABLE Orders (\n" +
             "    order_number BIGINT,\n" +
             "    price        INT,\n" +
@@ -35,6 +34,7 @@ public class DataGenDemo {
      */
     static String print = "CREATE TABLE print_table WITH ('connector' = 'print')\n" +
             "LIKE Orders (EXCLUDING ALL)";
+
     public static void main(String[] args) throws Exception {
         //环境设置
         EnvironmentSettings environmentSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
