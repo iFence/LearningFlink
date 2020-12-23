@@ -4,7 +4,9 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+
 import static org.apache.flink.table.api.Expressions.*;
+
 import org.apache.flink.types.Row;
 
 
@@ -46,10 +48,12 @@ public class TableDemo {
         //注册表
         tableEnv.executeSql(kafkaTable);
         tableEnv.executeSql(esTable);
+
+
         //打印表结构
         tableEnv.from("KafkaTable").printSchema();
         //查询表
-        Table table = tableEnv.from("KafkaTable").select($("user"),$("site"),$("time"));
+        Table table = tableEnv.from("KafkaTable").select($("user"), $("site"), $("time"));
         //将表的数据插入到es中
         //这里的sql中样需要注意字段是关键字的可能性
         tableEnv.executeSql("insert into esTable select `user`, site, `time` from KafkaTable");
