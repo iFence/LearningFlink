@@ -1,8 +1,11 @@
 package it.kenn.demo;
 
+import it.kenn.pojo.Click;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+
 import static org.apache.flink.table.api.Expressions.*;
 
 /**
@@ -59,6 +62,8 @@ public class JoinDemo {
         Table mysqlTable = tableEnvironment.from("dimTable").select("id, user_name, age, gender");
         Table kafkaTable = tableEnvironment.from("KafkaTable").select($("user"), $("site"), $("time"));
 
+        DataStream<Click> clickDataStream = tableEnvironment.toAppendStream(kafkaTable, Click.class);
+
         String joinSql = "insert into wideTable " +
                 " select " +
                 "   dimTable.id as `id`, " +
@@ -68,8 +73,9 @@ public class JoinDemo {
                 "   t.`time` as ts " +
                 "from KafkaTable as t " +
                 "left join dimTable on dimTable.user_name = t.`user`";
-        tableEnvironment.executeSql(joinSql);
+//        tableEnvironment.executeSql(joinSql);
 
         env.execute();
     }
 }
+
